@@ -1,0 +1,24 @@
+Verifies
+Verified using v1 scheme (JAR signing): false
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): false
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: C=US, O=Android, CN=Android Debug
+Signer #1 certificate SHA-256 digest: c53c3667786848faf26ec2142fd3352512b9cc831c39b85770be2979172aace8
+Signer #1 certificate SHA-1 digest: 531af1220a1dda42e738e2b2dd4aac5c4dcaa405
+Signer #1 certificate MD5 digest: 5cd70bb71744c2ce2819f106161ff104
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 2048
+Signer #1 public key SHA-256 digest: 3c917b4cb55efd78d1bdb1ed1523481a1c1c79e9e95de1c75222d7c417a418e6
+Signer #1 public key SHA-1 digest: 998a449b4e2540d0d3cd9abb4cc4768ce5d0d044
+Signer #1 public key MD5 digest: 85fb9ebcd765ed6f493c741ab7f29f1a
+
+package: name='me.fxlove.campus_wall' versionCode='4002' versionName='1.0.1' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'
+sdkVersion:'24'
+targetSdkVersion:'36'
+uses-permission: name='android.permission.INTERNET'
+uses-permission: name='me.fxlove.campus_wall.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+application-label:'复兴校园墙'

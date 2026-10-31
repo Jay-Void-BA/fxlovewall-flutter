@@ -1,0 +1,28 @@
+name: campus_wall
+description: 复兴校园墙的自适应 Flutter 客户端。
+publish_to: none
+version: 1.0.1+2
+environment:
+  sdk: ^3.11.0
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  dio: ^5.9.0
+  dio_cookie_manager: ^3.3.0
+  cookie_jar: ^4.0.8
+  flutter_secure_storage: ^10.0.0
+  shared_preferences: ^2.5.4
+  html: ^0.15.6
+  flutter_widget_from_html_core: ^0.17.0
+  url_launcher: ^6.3.2
+  share_plus: ^12.0.1
+  dynamic_color: ^1.8.1
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+flutter:
+  uses-material-design: true
