@@ -1,0 +1,108 @@
+name: Publish verified build artifacts
+
+on:
+  workflow_run:
+    workflows: [Flutter checks and platform builds]
+    branches: [main]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Successful main-branch build run ID
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SELECTED_RUN: ${{ github.event.workflow_run.id || inputs.run_id }}
+    steps:
+      - name: Validate successful trusted build
+        id: build
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, os, re, subprocess
+          run_id = os.environ['SELECTED_RUN']
+          if not re.fullmatch(r'[0-9]+', run_id):
+              raise SystemExit('Invalid run ID')
+          repo = os.environ['GITHUB_REPOSITORY']
+          def api(path):
+              return json.loads(subprocess.check_output(['gh', 'api', path]))
+          run = api(f'repos/{repo}/actions/runs/{run_id}')
+          assert run['conclusion'] == 'success', 'Build must have succeeded'
+          assert run['head_repository']['full_name'] == repo, 'Foreign repository'
+          assert run['head_branch'] == 'main', 'Build must be on main'
+          assert run['event'] in ('push', 'workflow_dispatch'), 'Untrusted trigger'
+          assert run['path'] == '.github/workflows/build.yml', 'Wrong workflow'
+          jobs = api(f'repos/{repo}/actions/runs/{run_id}/jobs?per_page=100')['jobs']
+          for name in ('android', 'ios-simulator', 'ios-unsigned-ipa'):
+              assert any(j['name'] == name and j['conclusion'] == 'success' for j in jobs), name
+          artifacts = api(f'repos/{repo}/actions/runs/{run_id}/artifacts')['artifacts']
+          for name in ('android-apks', 'ios-simulator-app', 'ios-unsigned-ipa'):
+              assert any(a['name'] == name and not a['expired'] for a in artifacts), name
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              out.write(f"commit={run['head_sha']}\nurl={run['html_url']}\nrun_id={run_id}\n")
+          PY
+      - uses: actions/checkout@v4
+      - name: Fetch tested source for version and release tools
+        env:
+          TESTED_COMMIT: ${{ steps.build.outputs.commit }}
+        run: git fetch origin "$TESTED_COMMIT"
+      - name: Read tested version
+        id: version
+        env:
+          TESTED_COMMIT: ${{ steps.build.outputs.commit }}
+        run: |
+          git show "$TESTED_COMMIT:pubspec.yaml" > /tmp/tested-pubspec.yaml
+          python3 - <<'PY'
+          import os, re
+          text = open('/tmp/tested-pubspec.yaml').read()
+          version = re.search(r'^version: ([0-9]+\.[0-9]+\.[0-9]+)\+[0-9]+$', text, re.M).group(1)
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              out.write(f'version={version}\ntag=v{version}\n')
+          PY
+          cmp pubspec.yaml /tmp/tested-pubspec.yaml
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ steps.build.outputs.run_id }}
+          path: artifacts
+      - name: Validate and prepare packages
+        env:
+          BUILD_URL: ${{ steps.build.outputs.url }}
+          TESTED_COMMIT: ${{ steps.build.outputs.commit }}
+        run: python3 scripts/prepare_release.py --artifacts artifacts --output release --run-url "$BUILD_URL" --commit "$TESTED_COMMIT"
+      - name: Verify Android signatures
+        run: |
+          apksigner_path="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)"
+          test -n "$apksigner_path"
+          for apk in release/*.apk; do
+            "$apksigner_path" verify --verbose "$apk"
+          done
+      - name: Publish release without overwriting an existing version
+        env:
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+          TESTED_COMMIT: ${{ steps.build.outputs.commit }}
+        run: |
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            printf 'Release %s already exists; retaining its assets.\n' "$RELEASE_TAG"
+            exit 0
+          fi
+          gh release create "$RELEASE_TAG" release/* \
+            --repo "$GITHUB_REPOSITORY" --target "$TESTED_COMMIT" \
+            --title "复兴校园墙 $RELEASE_TAG" \
+            --notes-file release/CI_BUILD_REPORT.md

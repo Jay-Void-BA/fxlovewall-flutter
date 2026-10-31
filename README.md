@@ -1,12 +1,16 @@
 # 复兴校园墙 · Flutter 1.0.1
 
+[![平台构建](https://github.com/Jay-Void-BA/fxlovewall-flutter/actions/workflows/build.yml/badge.svg)](https://github.com/Jay-Void-BA/fxlovewall-flutter/actions/workflows/build.yml)
+
 面向 https://fxlovewall.me/ 的独立 Android / iOS 客户端。手机底部导航、平板侧栏、宽屏帖子与评论双栏。内容和账号使用原网站服务，不需要新建后端。
 
 本版优化重复请求、点赞 / 收藏返回量、滚动位置和草稿保存。详见 [优化报告](docs/OPTIMIZATION_REPORT.md)。
 
 ## 下载与预览
 
-[下载 1.0.1 Android 安装包和交付报告](https://drive.google.com/drive/folders/1ibPpFS3dqHk0I_p2fR3GvVe4fmaUWgz1)（需要有权访问该 Google Drive 文件夹的账号）。普通 Android 手机和平板请选择 `arm64-v8a.apk`。
+[GitHub Releases 下载](https://github.com/Jay-Void-BA/fxlovewall-flutter/releases)：Android 三架构 APK、iOS 未签名 IPA、iOS 模拟器包及 SHA-256 校验文件。普通 Android 手机和平板请选择 `arm64-v8a.apk`；iPhone / iPad 的 IPA 需要自行签名后安装。
+
+[此前的 Google Drive 交付文件](https://drive.google.com/drive/folders/1ibPpFS3dqHk0I_p2fR3GvVe4fmaUWgz1)需要有权访问该文件夹的账号，与 GitHub CI 的测试签名可能不同。
 
 | Android | iOS 布局预览 |
 | --- | --- |
@@ -32,7 +36,7 @@ Android 使用 Flutter Material 3、Android 12+ 系统动态配色、预测返�
 
 iOS 使用 Cupertino 图标、iOS 页面转场、触感反馈、浮动玻璃导航，支持 iPhone / iPad 和横竖屏。Xcode 26 / Swift 6.2 构建时，iOS 26+ 通过平台视图接入真正的 UIKit `UIGlassEffect`；旧系统回退到 `systemUltraThinMaterial`。系统高对比度时使用实色导航；减少动态效果时关闭模糊和平台视图材质。最低 iOS 15。
 
-当前云环境为 Linux：Android APK 在此环境实际编译；iOS 原生 Swift 桥接与 Xcode 工程已准备，但无法在这里执行 Xcode，尚未生成或验证 IPA。仓库包含 macOS 构建脚本和 CI 工作流；CI 配置不代表已经在远程运行。iOS 玻璃截图为 Flutter 布局预览，不是 iOS 26 实机材质验证。
+Android APK 已在 Linux 实际编译；iOS 模拟器 .app 和未签名真机 IPA 已在 GitHub macOS / Xcode 26 运行器实际编译成功。[首次通过的完整 CI](https://github.com/Jay-Void-BA/fxlovewall-flutter/actions/runs/41162105609)包含 Android 检查 / 构建与两个 iOS 构建任务。iOS 玻璃截图仍为 Flutter 布局预览，尚未进行 iOS 26 实机材质或帧率验证。
 
 ## 构建
 
@@ -68,6 +72,8 @@ bash scripts/build_ios.sh ipa
 ## GitHub Actions
 
 推送 `main`、提交 Pull Request 或在 Actions 页面手动运行 `Flutter checks and platform builds`，会执行 Android 检查 / APK 构建，以及 macOS / Xcode 26 上的 iOS 模拟器和未签名 IPA 构建。成功的任务会在该次运行的 Artifacts 中保存产物；具体结果以运行状态为准。
+
+主分支完整构建成功后，`Publish verified build artifacts` 会验证构建来源、三个任务状态、包结构、iOS 版本与 Android 签名，并发布对应版本的 GitHub Release。相同版本的已发布资产不会被自动覆盖；发布新版本前需增加 `pubspec.yaml` 版本号。也可手动运行发布工作流，指定已成功的主分支 build run ID。Release 标签指向产物实际构建的提交。
 
 Android CI 未配置发行签名时会使用运行器生成的测试密钥，因此不同运行的 APK 不保证能够互相覆盖安装，也不保证能覆盖 Google Drive 的测试版。正式发布应使用固定的发行签名。iOS 未签名 IPA 必须签名后才能安装。
 
