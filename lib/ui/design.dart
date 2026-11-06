@@ -85,7 +85,11 @@ bool motionOff(BuildContext context) =>
 Duration motion(BuildContext context, [int milliseconds = 280]) =>
     Duration(milliseconds: motionOff(context) ? 0 : milliseconds);
 
-ThemeData wallTheme(Brightness brightness, ColorScheme? dynamic) {
+ThemeData wallTheme(
+  Brightness brightness,
+  ColorScheme? dynamic, {
+  bool hasBackground = false,
+}) {
   final scheme =
       dynamic ??
       ColorScheme.fromSeed(seedColor: wallBlue, brightness: brightness);
@@ -94,7 +98,9 @@ ThemeData wallTheme(Brightness brightness, ColorScheme? dynamic) {
     useMaterial3: true,
     brightness: brightness,
     colorScheme: scheme,
-    scaffoldBackgroundColor: dark
+    scaffoldBackgroundColor: hasBackground
+        ? Colors.transparent
+        : dark
         ? const Color(0xFF10141D)
         : const Color(0xFFF5F7FC),
     fontFamily: isApple ? '.SF Pro Text' : null,
@@ -106,7 +112,11 @@ ThemeData wallTheme(Brightness brightness, ColorScheme? dynamic) {
     cardTheme: CardThemeData(
       elevation: 0,
       margin: EdgeInsets.zero,
-      color: dark ? const Color(0xFF1C2230) : Colors.white,
+      color: hasBackground
+          ? scheme.surface.withValues(alpha: .97)
+          : dark
+          ? const Color(0xFF1C2230)
+          : Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
     ),
     inputDecorationTheme: InputDecorationTheme(

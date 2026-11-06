@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../data/models.dart';
+import '../data/appearance.dart';
 import '../state.dart';
 import 'actions.dart';
 import 'design.dart';
@@ -458,89 +459,112 @@ class _FeedPageState extends State<FeedPage> {
 class _FeedHero extends StatelessWidget {
   const _FeedHero();
   @override
-  Widget build(BuildContext context) => Container(
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(26),
-      gradient: const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [Color(0xFF3B60CB), Color(0xFF6A85E2)],
-      ),
-    ),
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(26),
-      child: Stack(
-        children: [
-          const Positioned(right: -50, top: -70, child: _Orbit()),
-          Padding(
-            padding: const EdgeInsets.all(26),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFC9D7FF),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      '在这里，遇见校园里的同频',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Color(0xFFDDE6FF),
-                        letterSpacing: 1,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 18),
-                const Text(
-                  '说给\n校园听。',
-                  style: TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    height: 1.28,
-                    letterSpacing: -1.5,
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final personalized =
+        AppScope.of(context).appearance.palette != WallPalette.system;
+    final foreground = personalized ? scheme.onPrimaryContainer : Colors.white;
+    final muted = personalized
+        ? scheme.onPrimaryContainer.withValues(alpha: .82)
+        : const Color(0xFFE2E9FF);
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(26),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: personalized
+              ? [
+                  scheme.primaryContainer,
+                  Color.alphaBlend(
+                    scheme.primary.withValues(alpha: .08),
+                    scheme.primaryContainer,
                   ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Text(
-                        '心动、日常和没说出口的话。\n匿名分享，也认真倾听。',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFFE2E9FF),
-                          height: 1.8,
+                ]
+              : const [Color(0xFF3B60CB), Color(0xFF6A85E2)],
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(26),
+        child: Stack(
+          children: [
+            const Positioned(right: -50, top: -70, child: _Orbit()),
+            Padding(
+              padding: const EdgeInsets.all(26),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: personalized
+                              ? scheme.primary
+                              : const Color(0xFFC9D7FF),
+                          shape: BoxShape.circle,
                         ),
                       ),
-                    ),
-                    FilledButton(
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: const Color(0xFF3B60CB),
-                        minimumSize: const Size(44, 44),
-                        padding: const EdgeInsets.all(14),
+                      const SizedBox(width: 8),
+                      Text(
+                        '在这里，遇见校园里的同频',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: personalized ? muted : const Color(0xFFDDE6FF),
+                          letterSpacing: 1,
+                        ),
                       ),
-                      onPressed: () => openWallLink(context, '/post/new'),
-                      child: const Icon(CupertinoIcons.pencil, size: 20),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    '说给\n校园听。',
+                    style: TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.w700,
+                      color: foreground,
+                      height: 1.28,
+                      letterSpacing: -1.5,
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '心动、日常和没说出口的话。\n匿名分享，也认真倾听。',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: muted,
+                            height: 1.8,
+                          ),
+                        ),
+                      ),
+                      FilledButton(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: personalized
+                              ? scheme.primary
+                              : Colors.white,
+                          foregroundColor: personalized
+                              ? scheme.onPrimary
+                              : const Color(0xFF3B60CB),
+                          minimumSize: const Size(44, 44),
+                          padding: const EdgeInsets.all(14),
+                        ),
+                        onPressed: () => openWallLink(context, '/post/new'),
+                        child: const Icon(CupertinoIcons.pencil, size: 20),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _Orbit extends StatelessWidget {

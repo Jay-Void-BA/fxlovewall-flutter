@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'data/models.dart';
 import 'data/repository.dart';
+import 'data/appearance.dart';
 
 class AppState extends ChangeNotifier {
   final WallRepository repository;
   final SharedPreferences prefs;
+  final AppearanceSettings appearance;
   bool signedIn = false;
   bool reduceMotion;
   bool glass;
@@ -16,7 +18,8 @@ class AppState extends ChangeNotifier {
   DateTime? cachedAt;
   String? draft;
   AppState(this.repository, this.prefs)
-    : reduceMotion = prefs.getBool('reduceMotion') ?? false,
+    : appearance = AppearanceSettings(prefs),
+      reduceMotion = prefs.getBool('reduceMotion') ?? false,
       glass = prefs.getBool('glass') ?? true,
       themeMode =
           ThemeMode.values[(prefs.getInt('theme') ?? 0).clamp(
@@ -92,6 +95,12 @@ class AppState extends ChangeNotifier {
     session = null;
     await clearDraft();
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    appearance.dispose();
+    super.dispose();
   }
 }
 

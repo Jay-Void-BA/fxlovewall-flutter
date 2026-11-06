@@ -1,7 +1,7 @@
 name: campus_wall
 description: 复兴校园墙的自适应 Flutter 客户端。
 publish_to: none
-version: 1.0.1+2
+version: 1.1.0+3
 environment:
   sdk: ^3.11.0
 dependencies:
@@ -20,6 +20,9 @@ dependencies:
   url_launcher: ^6.3.2
   share_plus: ^12.0.1
   dynamic_color: ^1.8.1
+  image_picker: ^1.2.1
+  path_provider: ^2.1.5
+  material_color_utilities: ^0.13.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

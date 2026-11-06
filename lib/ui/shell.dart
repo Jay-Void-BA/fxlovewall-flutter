@@ -5,6 +5,7 @@ import 'design.dart';
 import 'feed.dart';
 import 'navigation.dart';
 import 'pages.dart';
+import 'appearance.dart';
 
 const appleDestinations = [
   (
@@ -674,6 +675,23 @@ class AccountPage extends StatelessWidget {
             ),
             const SectionTitle('随你喜欢'),
             Card(
+              child: ListTile(
+                leading: const Icon(CupertinoIcons.paintbrush),
+                title: const Text('背景与配色', style: TextStyle(fontSize: 14)),
+                subtitle: const Text(
+                  '更换背景照片，体验莫奈取色',
+                  style: TextStyle(fontSize: 11),
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const AppearancePage(),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Card(
               child: Column(
                 children: [
                   ListTile(
@@ -762,7 +780,7 @@ class AccountPage extends StatelessWidget {
               ),
             const SizedBox(height: 32),
             const Text(
-              '复兴校园墙 · Flutter 客户端 1.0.1\n独立客户端，内容与账号由 fxlovewall.me 提供。',
+              '复兴校园墙 · Flutter 客户端 1.1.0\n独立客户端，内容与账号由 fxlovewall.me 提供。',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 10, color: Colors.grey, height: 2),
             ),
